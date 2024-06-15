@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, Alert } from 'react-native';
 import { db } from '../../src/config/firebase';
-import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
 import TopicCard from '../../src/components/TopicCard';
 import Comment from '../../src/components/Comment';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,7 +9,7 @@ import Button from '../../src/components/Button';
 import { AuthContext } from '../../src/context/AuthContext';
 
 export default function TopicDetailsScreen() {
-  const { id: topicId } = useLocalSearchParams(); // Obtém o ID do tópico da URL
+  const { id: topicId } = useLocalSearchParams();
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -23,9 +23,8 @@ export default function TopicDetailsScreen() {
         if (topicDoc.exists()) {
           setTopic({ id: topicDoc.id, ...topicDoc.data() });
         } else {
-          // Lidar com o caso em que o tópico não existe (ex: exibir uma mensagem de erro)
           console.error('Tópico não encontrado');
-          router.back(); 
+          router.back();
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do tópico:', error);
@@ -63,15 +62,35 @@ export default function TopicDetailsScreen() {
         authorName: user.displayName || user.email,
       });
       setNewComment('');
-      fetchComments(); // Atualizar a lista de comentários após adicionar um novo
+      fetchComments();
     } catch (error) {
       console.error('Erro ao adicionar comentário:', error);
     }
   };
 
+  const handleLike = async () => {
+    if (!user) {
+      Alert.alert('Erro', 'Você precisa estar logado para curtir.');
+      return;
+    }
+
+    try {
+      const topicRef = doc(db, 'topics', topicId);
+      await updateDoc(topicRef, { likes: (topic?.likes || 0) + 1 });
+      setTopic(prevTopic => ({ ...prevTopic, likes: (prevTopic?.likes || 0) + 1 })); // Atualiza localmente
+    } catch (error) {
+      console.error('Erro ao curtir tópico:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {topic && <TopicCard topic={topic} />}
+      {topic && (
+        <TopicCard 
+          topic={topic} 
+          onLikePress={handleLike} // Passa a função handleLike para o TopicCard
+        />
+      )}
       <FlatList
         data={comments}
         renderItem={({ item }) => <Comment comment={item} />}

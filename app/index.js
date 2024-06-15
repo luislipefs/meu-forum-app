@@ -8,18 +8,18 @@ import { Link } from 'expo-router';
 export default function HomeScreen() {
   const [topics, setTopics] = useState([]);
 
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setTopics(topicsData);
-      } catch (error) {
-        console.error('Erro ao buscar tópicos:', error);
-      }
-    };
+  const fetchTopics = async () => {
+    try {
+      const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTopics(topicsData);
+    } catch (error) {
+      console.error('Erro ao buscar tópicos:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchTopics();
   }, []);
 

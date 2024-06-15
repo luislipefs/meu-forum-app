@@ -1,27 +1,32 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { db } from '../config/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { Link } from 'expo-router';
 
-const TopicCard = ({ topic, onPress }) => {
-  const handleLike = async () => {
-    try {
-      const topicRef = doc(db, 'topics', topic.id);
-      await updateDoc(topicRef, { likes: topic.likes + 1 });
-    } catch (error) {
-      console.error('Erro ao curtir tópico:', error);
-    }
-  };
-
+const TopicCard = ({ topic, onLikePress }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Text style={styles.title}>{topic.title}</Text>
-      <Text numberOfLines={2} style={styles.content}>{topic.content}</Text>
+    <TouchableOpacity onPress={onLikePress} style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{topic.title}</Text>
+        <Link href={`/topic/${topic.id}`} asChild>
+          <Text style={styles.viewDetails}>Ver detalhes</Text>
+        </Link>
+      </View>
+      <Text numberOfLines={2} style={styles.content}>
+        {topic.content}
+      </Text>
       <View style={styles.footer}>
-        <TouchableOpacity onPress={handleLike}>
-          <Text style={styles.likeButton}>Curtir ({topic.likes || 0})</Text>
-        </TouchableOpacity>
-        <Text style={styles.comments}>Comentários ({topic.comments || 0})</Text>
+        <View style={styles.authorContainer}>
+          <Text style={styles.authorName}>{topic.authorName}</Text>
+          <Text style={styles.createdAt}>
+            {new Date(topic.createdAt.seconds * 1000).toLocaleDateString()}
+          </Text>
+        </View>
+        <View style={styles.statsContainer}>
+          <TouchableOpacity onPress={onLikePress}>
+            <Text style={styles.likeButton}>Curtir ({topic.likes || 0})</Text>
+          </TouchableOpacity>
+          <Text style={styles.comments}>Comentários ({topic.comments || 0})</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -39,10 +44,19 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
     elevation: 2,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+  },
+  viewDetails: {
+    color: '#007bff',
+    textDecorationLine: 'underline',
   },
   content: {
     fontSize: 14,
@@ -53,8 +67,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  authorContainer: {
+    flexDirection: 'column',
+  },
+  authorName: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  createdAt: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   likeButton: {
-    color: '#007bff', // Cor primária do fórum
+    color: '#007bff',
+    marginRight: 10,
   },
   comments: {
     color: 'gray',

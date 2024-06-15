@@ -1,4 +1,6 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useEffect } from 'react';
+import { auth } from '../config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const AuthContext = createContext({
   user: null,
@@ -19,6 +21,18 @@ const authReducer = (state, action) => {
 
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, { user: null });
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch({ type: 'LOGIN', payload: user });
+      } else {
+        dispatch({ type: 'LOGOUT' });
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const login = (user) => {
     dispatch({ type: 'LOGIN', payload: user });

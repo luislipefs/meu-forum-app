@@ -1,14 +1,11 @@
 import React from 'react';
-import 'expo-router/entry';
-import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
+import 'expo-router/entry';
 
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
+      <Stack />
     </AuthProvider>
   );
 }
