@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { View, TextInput, StyleSheet, Alert } from 'react-native';
-import { db } from '../config/firebase';
+import { db } from '../../src/config/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import { AuthContext } from '../context/AuthContext';
+import Button from '../../src/components/Button';
+import Input from '../../src/components/Input';
+import { AuthContext } from '../../src/context/AuthContext';
 
-const NewTopicScreen = ({ navigation }) => {
+export default function NewTopicScreen() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const { user } = useContext(AuthContext);
@@ -24,10 +24,11 @@ const NewTopicScreen = ({ navigation }) => {
         createdAt: serverTimestamp(),
         likes: 0,
         comments: 0,
-        author: user.uid, // ID do usuário que criou o tópico
-        authorName: user.displayName || user.email, // Nome de exibição ou email do usuário
+        author: user?.uid,
+        authorName: user?.displayName || user?.email,
       });
-      navigation.goBack();
+      // Redireciona para a página inicial após criar o tópico
+      redirect('/');
     } catch (error) {
       Alert.alert('Erro', 'Falha ao criar tópico.');
     }
@@ -53,13 +54,11 @@ const NewTopicScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  input: {
-    marginBottom: 10,
-  },
-});
-
-export default NewTopicScreen;
+    container: {
+      flex: 1,
+      padding: 20,
+    },
+    input: {
+      marginBottom: 10,
+    },
+  });

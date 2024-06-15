@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { AuthContext } from '../context/AuthContext'; // Importe o contexto de autenticação
+import { AuthContext } from '../../src/context/AuthContext';
 
-const ProfileScreen = ({ navigation }) => {
+export default function ProfileScreen() {
   const { user, logout } = useContext(AuthContext);
 
   return (
@@ -20,15 +20,13 @@ const ProfileScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  email: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-});
-
-export default ProfileScreen;
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    email: {
+      fontSize: 18,
+      marginBottom: 10,
+    },
+  });
