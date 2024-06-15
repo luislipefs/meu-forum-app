@@ -17,7 +17,7 @@ export default function LoginScreen() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       dispatch({ type: 'LOGIN', payload: user }); // Atualize o contexto com o usuário logado
-      router.push('/'); // Redireciona para a página inicial após o login
+      router.push('/(tabs)/posts'); // Redireciona para a página inicial após o login
     } catch (error) {
       Alert.alert('Erro', 'Falha ao fazer login. Verifique suas credenciais.');
     }
@@ -28,7 +28,7 @@ export default function LoginScreen() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       dispatch({ type: 'LOGIN', payload: user }); // Atualize o contexto com o usuário logado
-      router.push('/'); // Redireciona para a página inicial após o cadastro
+      router.push('/(tabs)/posts'); // Redireciona para a página inicial após o cadastro
     } catch (error) {
       Alert.alert('Erro', 'Falha ao criar conta. Verifique suas credenciais.');
     }
