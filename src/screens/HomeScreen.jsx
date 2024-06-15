@@ -9,21 +9,29 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchTopics = async () => {
-      const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTopics(topicsData);
+      try {
+        const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTopics(topicsData);
+      } catch (error) {
+        console.error('Erro ao buscar tópicos:', error);
+      }
     };
 
     fetchTopics();
   }, []);
+
+  const handleTopicPress = (topicId) => {
+    navigation.navigate('TopicDetails', { topicId });
+  };
 
   return (
     <View style={styles.container}>
       <Button title="Novo Tópico" onPress={() => navigation.navigate('NewTopic')} />
       <FlatList
         data={topics}
-        renderItem={({ item }) => <TopicCard topic={item} />}
+        renderItem={({ item }) => <TopicCard topic={item} onPress={() => handleTopicPress(item.id)} />}
         keyExtractor={(item) => item.id}
       />
     </View>

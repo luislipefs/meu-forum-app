@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, TextInput, StyleSheet, Alert } from 'react-native';
-import { auth } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import Button from '../components/Button';
+import { AuthContext } from '../context/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { dispatch } = useContext(AuthContext);
+
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      dispatch({ type: 'LOGIN', payload: user }); // Atualize o contexto com o usuário logado
       navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Erro', 'Falha ao fazer login. Verifique suas credenciais.');
@@ -20,7 +26,16 @@ const LoginScreen = ({ navigation }) => {
   const handleSignUp = async () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // TODO: Adicionar lógica para salvar dados do usuário no Firestore (opcional)
+      const user = userCredential.user;
+      
+      // Salvar dados do usuário no Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        // ... outros dados do usuário (nome, foto, etc.)
+      });
+
+      dispatch({ type: 'LOGIN', payload: user }); // Atualize o contexto com o usuário logado
+      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Erro', 'Falha ao criar conta. Verifique suas credenciais.');
     }
