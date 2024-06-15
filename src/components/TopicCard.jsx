@@ -4,11 +4,12 @@ import { Link } from 'expo-router';
 
 const TopicCard = ({ topic, onLikePress }) => {
   return (
-    <TouchableOpacity onPress={onLikePress} style={styles.card}>
+    <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>{topic.title}</Text>
         <Link href={`/topic/${topic.id}`} asChild>
-          <Text style={styles.viewDetails}>Ver detalhes</Text>
+          <TouchableOpacity>
+            <Text style={styles.title}>{topic.title}</Text>
+          </TouchableOpacity>
         </Link>
       </View>
       <Text numberOfLines={2} style={styles.content}>
@@ -23,12 +24,12 @@ const TopicCard = ({ topic, onLikePress }) => {
         </View>
         <View style={styles.statsContainer}>
           <TouchableOpacity onPress={onLikePress}>
-            <Text style={styles.likeButton}>Curtir ({topic.likes || 0})</Text>
+            <Text style={styles.likeButton}>Curtir ({topic.likes?.length || 0})</Text>
           </TouchableOpacity>
           <Text style={styles.comments}>Comentários ({topic.comments || 0})</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

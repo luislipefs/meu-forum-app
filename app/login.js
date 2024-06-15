@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { View, TextInput, StyleSheet, Alert } from 'react-native';
-import { auth } from '../config/firebase';
+import { auth } from '../src/config/firebase'
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import Button from '../components/Button';
-import { AuthContext } from '../context/AuthContext';
+import Button from '../src/components/Button';
+import { AuthContext } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {

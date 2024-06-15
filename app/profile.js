@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { AuthContext } from '../../src/context/AuthContext';
+import { AuthContext } from '../src/context/AuthContext'; 
 import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {

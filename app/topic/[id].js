@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, Alert } from 'react-native';
-import { db } from '../../src/config/firebase';
-import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../../src/config/firebase'
+import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp, updateDoc, arrayUnion } from 'firebase/firestore';
 import TopicCard from '../../src/components/TopicCard';
 import Comment from '../../src/components/Comment';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -18,16 +18,19 @@ export default function TopicDetailsScreen() {
 
   useEffect(() => {
     const fetchTopicDetails = async () => {
-      try {
-        const topicDoc = await getDoc(doc(db, 'topics', topicId));
-        if (topicDoc.exists()) {
-          setTopic({ id: topicDoc.id, ...topicDoc.data() });
-        } else {
-          console.error('Tópico não encontrado');
-          router.back();
+      if (topicId) { // Verifica se o topicId está definido
+        try {
+          const topicDoc = await getDoc(doc(db, 'topics', topicId));
+          if (topicDoc.exists()) {
+            setTopic({ id: topicDoc.id, ...topicDoc.data() });
+          } else {
+            console.error('Tópico não encontrado');
+            router.back();
+          }
+        } catch (error) {
+          console.error('Erro ao buscar detalhes do tópico:', error);
+          Alert.alert('Erro', 'Ocorreu um erro ao carregar o tópico.');
         }
-      } catch (error) {
-        console.error('Erro ao buscar detalhes do tópico:', error);
       }
     };
 
@@ -39,14 +42,13 @@ export default function TopicDetailsScreen() {
         setComments(commentsData);
       } catch (error) {
         console.error('Erro ao buscar comentários:', error);
+        Alert.alert('Erro', 'Ocorreu um erro ao carregar os comentários.');
       }
     };
 
-    if (topicId) {
-      fetchTopicDetails();
-      fetchComments();
-    }
-  }, [topicId]);
+    fetchTopicDetails();
+    fetchComments();
+  }, [topicId]); // Executa o useEffect apenas quando topicId mudar
 
   const handleAddComment = async () => {
     if (!user) {
@@ -62,9 +64,10 @@ export default function TopicDetailsScreen() {
         authorName: user.displayName || user.email,
       });
       setNewComment('');
-      fetchComments();
+      fetchComments(); // Atualiza a lista de comentários após adicionar um novo
     } catch (error) {
       console.error('Erro ao adicionar comentário:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao adicionar o comentário.');
     }
   };
 
@@ -76,10 +79,18 @@ export default function TopicDetailsScreen() {
 
     try {
       const topicRef = doc(db, 'topics', topicId);
-      await updateDoc(topicRef, { likes: (topic?.likes || 0) + 1 });
-      setTopic(prevTopic => ({ ...prevTopic, likes: (prevTopic?.likes || 0) + 1 })); // Atualiza localmente
+      await updateDoc(topicRef, { 
+        likes: arrayUnion(user.uid) // Adiciona o ID do usuário à lista de likes
+      });
+
+      // Atualiza o estado local do tópico para refletir a curtida
+      setTopic(prevTopic => ({
+        ...prevTopic,
+        likes: [...(prevTopic?.likes || []), user.uid] 
+      }));
     } catch (error) {
       console.error('Erro ao curtir tópico:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao curtir o tópico.');
     }
   };
 

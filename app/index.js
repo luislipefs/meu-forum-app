@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { db } from '../src/config/firebase'
 import { View, FlatList, StyleSheet, Button } from 'react-native';
-import { db } from '../../src/config/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import TopicCard from '../../src/components/TopicCard';
 import { Link } from 'expo-router';
+import TopicCard from '../src/components/TopicCard';
 
 export default function HomeScreen() {
   const [topics, setTopics] = useState([]);

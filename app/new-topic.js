@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { View, TextInput, StyleSheet, Alert } from 'react-native';
-import { db } from '../config/firebase';
+import { db } from '../src/config/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import { AuthContext } from '../context/AuthContext';
+import Button from '../src/components/Button';
+import Input from '../src/components/Input';
+import { AuthContext } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 
 export default function NewTopicScreen() {
