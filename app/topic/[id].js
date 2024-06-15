@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, Alert } from 'react-native';
-import { db } from '../../src/config/firebase'
-import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp, updateDoc, arrayUnion } from 'firebase/firestore';
+import { View, Text, StyleSheet, FlatList, TextInput, Alert, TouchableOpacity } from 'react-native';
+import { db } from '../../src/config/firebase';
+import { doc, getDoc, collection, addDoc, query, orderBy, serverTimestamp, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import TopicCard from '../../src/components/TopicCard';
 import Comment from '../../src/components/Comment';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -18,14 +18,15 @@ export default function TopicDetailsScreen() {
 
   useEffect(() => {
     const fetchTopicDetails = async () => {
-      if (topicId) { // Verifica se o topicId está definido
+      if (topicId) { 
         try {
           const topicDoc = await getDoc(doc(db, 'topics', topicId));
           if (topicDoc.exists()) {
             setTopic({ id: topicDoc.id, ...topicDoc.data() });
           } else {
             console.error('Tópico não encontrado');
-            router.back();
+            Alert.alert('Erro', 'Tópico não encontrado.'); // Exibe alerta para o usuário
+            router.back(); 
           }
         } catch (error) {
           console.error('Erro ao buscar detalhes do tópico:', error);
@@ -48,7 +49,7 @@ export default function TopicDetailsScreen() {
 
     fetchTopicDetails();
     fetchComments();
-  }, [topicId]); // Executa o useEffect apenas quando topicId mudar
+  }, [topicId]); 
 
   const handleAddComment = async () => {
     if (!user) {
@@ -61,10 +62,10 @@ export default function TopicDetailsScreen() {
         content: newComment,
         createdAt: serverTimestamp(),
         author: user.uid,
-        authorName: user.displayName || user.email,
+        authorName: user.displayName || user.email, 
       });
       setNewComment('');
-      fetchComments(); // Atualiza a lista de comentários após adicionar um novo
+      fetchComments(); 
     } catch (error) {
       console.error('Erro ao adicionar comentário:', error);
       Alert.alert('Erro', 'Ocorreu um erro ao adicionar o comentário.');
@@ -79,28 +80,45 @@ export default function TopicDetailsScreen() {
 
     try {
       const topicRef = doc(db, 'topics', topicId);
-      await updateDoc(topicRef, { 
-        likes: arrayUnion(user.uid) // Adiciona o ID do usuário à lista de likes
-      });
+      const topicSnapshot = await getDoc(topicRef);
 
-      // Atualiza o estado local do tópico para refletir a curtida
-      setTopic(prevTopic => ({
-        ...prevTopic,
-        likes: [...(prevTopic?.likes || []), user.uid] 
-      }));
+      if (topicSnapshot.exists()) {
+        const topicData = topicSnapshot.data();
+        if (topicData.likes && topicData.likes.includes(user.uid)) {
+          // Usuário já curtiu, então remova o like
+          await updateDoc(topicRef, {
+            likes: arrayRemove(user.uid)
+          });
+          setTopic(prevTopic => ({
+            ...prevTopic,
+            likes: prevTopic.likes.filter(id => id !== user.uid)
+          }));
+        } else {
+          // Usuário não curtiu, então adicione o like
+          await updateDoc(topicRef, {
+            likes: arrayUnion(user.uid)
+          });
+          setTopic(prevTopic => ({
+            ...prevTopic,
+            likes: [...(prevTopic?.likes || []), user.uid]
+          }));
+        }
+      }
     } catch (error) {
-      console.error('Erro ao curtir tópico:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao curtir o tópico.');
+      console.error('Erro ao curtir/descurtir tópico:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao curtir/descurtir o tópico.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {topic && (
-        <TopicCard 
-          topic={topic} 
-          onLikePress={handleLike} // Passa a função handleLike para o TopicCard
+      {topic ? (
+        <TopicCard
+          topic={topic}
+          onLikePress={handleLike} 
         />
+      ) : (
+        <Text>Carregando tópico...</Text> // Exibe mensagem de carregamento
       )}
       <FlatList
         data={comments}

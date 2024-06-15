@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../src/config/firebase'
 import { View, FlatList, StyleSheet, Button } from 'react-native';
+import { db } from '../../src/config/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import TopicCard from '../../src/components/TopicCard';
 
 export default function HomeScreen() {
   const [topics, setTopics] = useState([]);
-
-  const fetchTopics = async () => {
-    try {
-      const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTopics(topicsData);
-    } catch (error) {
-      console.error('Erro ao buscar tópicos:', error);
-    }
-  };
+  const router = useRouter();
 
   useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const q = query(collection(db, 'topics'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const topicsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTopics(topicsData);
+      } catch (error) {
+        console.error('Erro ao buscar tópicos:', error);
+      }
+    };
+
     fetchTopics();
   }, []);
+
+  const handleTopicPress = (topicId) => {
+    router.push(`/topic/${topicId}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -32,7 +37,7 @@ export default function HomeScreen() {
         data={topics}
         renderItem={({ item }) => (
           <Link href={`/topic/${item.id}`} asChild>
-            <TopicCard topic={item} />
+            <TopicCard topic={item} onPress={() => handleTopicPress(item.id)} />
           </Link>
         )}
         keyExtractor={(item) => item.id}

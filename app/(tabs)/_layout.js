@@ -1,20 +1,25 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../src/context/AuthContext';
 
 export default function Layout() {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
-  const [isMounted, setIsMounted] = useState(false); // Novo estado
+  const { user, isLoading } = useContext(AuthContext);
+  const segments = useSegments();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Atualiza o estado quando o componente é montado
+    setIsReady(true);
+  }, []);
 
-    // Só redireciona se o componente estiver montado e o usuário não estiver logado
-    if (isMounted && !user) { 
+  useEffect(() => {
+    if (isLoading || !isReady) return; // Aguarda o carregamento e a montagem do componente
+
+    // Verifica a autenticação apenas na rota inicial (tabs)
+    if (segments.length === 1 && segments[0] === '(tabs)' && !user) {
       router.replace('/login');
     }
-  }, [user, isMounted]); // Adiciona isMounted às dependências
+  }, [user, isLoading, isReady, segments]);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }
