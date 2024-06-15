@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "src/components/Comment.jsx", "src/components/TopicCard.jsx", "src/components/Input.jsx", "src/components/Button.jsx", "src/config/firebase.js", "src/components/Button.jsx", "src/screens/TopicDetailScreen.jsx", "src/screens/ProfileScreen.jsx", "src/screens/NewTopicScreen.jsx", "src/screens/HomeScreen.jsx", "src/screens/LoginScreen.jsx", "src/navigation/AppNavigator.jsx", "App.js"  ]
 }

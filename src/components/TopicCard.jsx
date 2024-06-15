@@ -3,17 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { db } from '../config/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
-interface TopicCardProps {
-  topic: {
-    id: string;
-    title: string;
-    content: string;
-    likes: number; 
-    comments: number; 
-  };
-}
-
-const TopicCard: React.FC<TopicCardProps> = ({ topic }) => {
+const TopicCard = ({ topic, onPress }) => {
   const handleLike = async () => {
     try {
       const topicRef = doc(db, 'topics', topic.id);
@@ -24,16 +14,16 @@ const TopicCard: React.FC<TopicCardProps> = ({ topic }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} style={styles.card}>
       <Text style={styles.title}>{topic.title}</Text>
       <Text numberOfLines={2} style={styles.content}>{topic.content}</Text>
       <View style={styles.footer}>
         <TouchableOpacity onPress={handleLike}>
-          <Text style={styles.likeButton}>Curtir ({topic.likes})</Text>
+          <Text style={styles.likeButton}>Curtir ({topic.likes || 0})</Text>
         </TouchableOpacity>
-        <Text style={styles.comments}>Comentários ({topic.comments})</Text>
+        <Text style={styles.comments}>Comentários ({topic.comments || 0})</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

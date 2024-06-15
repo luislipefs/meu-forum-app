@@ -1,15 +1,7 @@
 import React from 'react';
 import { TextInput, StyleSheet } from 'react-native';
 
-interface InputProps {
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  secureTextEntry?: boolean;
-  multiline?: boolean;
-}
-
-const Input: React.FC<InputProps> = ({ placeholder, value, onChangeText, secureTextEntry = false, multiline = false }) => {
+const Input = ({ placeholder, value, onChangeText, secureTextEntry = false, multiline = false }) => {
   return (
     <TextInput
       style={styles.input}
